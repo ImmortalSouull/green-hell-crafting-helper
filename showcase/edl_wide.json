@@ -1,0 +1,129 @@
+{
+ "fps": 30,
+ "theme": {
+  "accent": "#E8C25A",
+  "text": "#FFFFFF",
+  "chip": "#0A0D0AD0"
+ },
+ "transition": {
+  "type": "fade",
+  "duration": 0.3
+ },
+ "clip_volume": 0.8,
+ "fade_out": 0.8,
+ "normalize_audio": true,
+ "size": [
+  1920,
+  1080
+ ],
+ "segments": [
+  {
+   "clip": "raw/take3.mp4",
+   "crop": [
+    568,
+    0,
+    2304,
+    1440
+   ],
+   "fill": "crop",
+   "volume": 0.8,
+   "in": 5.6,
+   "dur": 3.0,
+   "hook": "No more wiki on a second screen"
+  },
+  {
+   "clip": "raw/take3.mp4",
+   "crop": [
+    568,
+    0,
+    2304,
+    1440
+   ],
+   "fill": "crop",
+   "volume": 0.8,
+   "in": 8.6,
+   "dur": 4.2,
+   "title": "Search any item or ingredient"
+  },
+  {
+   "clip": "raw/take3.mp4",
+   "crop": [
+    568,
+    0,
+    2304,
+    1440
+   ],
+   "fill": "crop",
+   "volume": 0.8,
+   "in": 13.0,
+   "dur": 4.0,
+   "title": "See what you can craft right now"
+  },
+  {
+   "clip": "raw/take3.mp4",
+   "crop": [
+    568,
+    0,
+    2304,
+    1440
+   ],
+   "fill": "crop",
+   "volume": 0.8,
+   "in": 17.2,
+   "dur": 3.4,
+   "title": "One click: ingredients on the table"
+  },
+  {
+   "clip": "raw/take3.mp4",
+   "crop": [
+    568,
+    0,
+    2304,
+    1440
+   ],
+   "fill": "crop",
+   "volume": 0.8,
+   "in": 20.6,
+   "dur": 4.6,
+   "title": "Press Craft - done",
+   "transition": {
+    "type": "cut"
+   }
+  },
+  {
+   "clip": "raw/take4.mp4",
+   "crop": [
+    568,
+    0,
+    2304,
+    1440
+   ],
+   "fill": "crop",
+   "volume": 0.8,
+   "in": 3.2,
+   "dur": 3.2,
+   "title": "Pin a recipe"
+  },
+  {
+   "clip": "raw/take4.mp4",
+   "crop": [
+    568,
+    0,
+    2304,
+    1440
+   ],
+   "fill": "crop",
+   "volume": 0.8,
+   "in": 7.5,
+   "dur": 7.5,
+   "title": "Live counter while you gather"
+  },
+  {
+   "card": {
+    "title": "Crafting Helper",
+    "sub": "free mod for Green Hell  -  press K"
+   },
+   "dur": 3.2
+  }
+ ]
+}

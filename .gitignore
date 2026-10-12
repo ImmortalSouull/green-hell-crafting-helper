@@ -1,0 +1,13 @@
+_tools/
+_bridge/
+*.png
+bin/
+obj/
+dist/
+showcase/raw/
+*.mp4
+devtools/
+showcase/director.sh
+showcase/nexus/*.jpg
+!showcase/nexus/final/*.jpg
+showcase/*.png
