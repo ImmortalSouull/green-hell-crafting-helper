@@ -1,6 +1,6 @@
 # Crafting Helper (Green Hell)
 
-[English](README.md) | **Русский**
+[English](README.md) | **Русский** | [Polski](README.pl.md)
 
 ![Crafting Helper](showcase/nexus/final/01_cover.jpg)
 
