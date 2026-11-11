@@ -47,12 +47,89 @@ namespace GreenHellCraftingHelper
         private void Update()
         {
             if (!InGame()) { if (_open) Close(); return; }
-            if (Plugin.Instance.ToggleKey.Value.IsDown() && !TypingInGameField() && (_open || !GameScreenOpen()))
+            if (ShortcutDown(Plugin.Instance.ToggleKey.Value) && !TypingInGameField() && (_open || !GameScreenOpen()))
             {
                 if (_open) Close(); else Open();
             }
 
             if (_open && Time.unscaledTime >= _nextRefresh) { Rebuild(); _nextRefresh = Time.unscaledTime + 0.5f; }
+            CraftingWatchdog();
+        }
+
+        // BepInEx's KeyboardShortcut.IsDown() is false while ANY other key or joystick button counts as held.
+        // With a gamepad connected one of its buttons/triggers often does, and K stopped working
+        // after switching input methods. Only the key and its own modifiers matter here.
+        private static bool ShortcutDown(BepInEx.Configuration.KeyboardShortcut s)
+        {
+            if (s.MainKey == KeyCode.None || !Input.GetKeyDown(s.MainKey)) return false;
+            foreach (var m in s.Modifiers) if (!Input.GetKey(m)) return false;
+            return true;
+        }
+
+        // ------------------------------------------------------------------ crafting safety
+
+        private float _stuckSince = -1f;
+        private float _checkCraftCtrlAt = -1f;
+        private static System.Reflection.MethodInfo _finishCrafting;
+
+        /// <summary>The crafting animation only ends through an animation event that the crafting controller
+        /// receives while it is running. If Craft is ever pressed while that controller isn't running, the
+        /// game waits forever (hands looping, moves/rotation and the inspection wheel blocked). Detect and undo it.</summary>
+        private void CraftingWatchdog()
+        {
+            var cc = CraftingController.Get();
+            if (cc == null) return;
+            if (cc.m_InProgress && !cc.enabled)
+            {
+                if (_stuckSince < 0) _stuckSince = Time.unscaledTime;
+                else if (Time.unscaledTime - _stuckSince > 1.5f)
+                {
+                    _stuckSince = -1f;
+                    try
+                    {
+                        _finishCrafting = _finishCrafting ?? typeof(CraftingController).GetMethod("FinishCrafting",
+                            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                        _finishCrafting.Invoke(cc, new object[] { false });   // the game's own "stop crafting": items go back
+                        Plugin.Log.LogWarning("Crafting was stuck without its controller; cancelled, ingredients returned");
+                        Toast(T._("Crafting got stuck: ingredients are back in your backpack, try again"));
+                    }
+                    catch (Exception e) { Plugin.Log.LogError(e); }
+                }
+            }
+            else _stuckSince = -1f;
+
+            // after we filled the table: the crafting controller must be the one starting/running
+            if (_checkCraftCtrlAt > 0 && Time.unscaledTime >= _checkCraftCtrlAt)
+            {
+                _checkCraftCtrlAt = -1f;
+                var p = Player.Get();
+                if (CraftingManager.Get().IsActive() && !cc.enabled && p.m_ControllerToStart != PlayerControllerType.Crafting)
+                {
+                    Plugin.Log.LogWarning("Crafting table open without the crafting controller (" + p.m_ControllerToStart + "); starting it");
+                    p.StartController(PlayerControllerType.Crafting);
+                }
+            }
+        }
+
+        /// <summary>Put a recipe on the table. With the backpack closed the game must first switch to the inventory
+        /// (and put away what is in the hands) before the table can take items, like it does when you craft by hand.</summary>
+        private System.Collections.IEnumerator PutOnTable(Recipe r)
+        {
+            Close();
+            var inv = Inventory3DManager.Get();
+            if (!inv.IsActive())
+            {
+                inv.Activate();
+                float until = Time.unscaledTime + 2f;
+                var invCtrl = Player.Get().GetController(PlayerControllerType.Inventory);
+                while (Time.unscaledTime < until && !(invCtrl != null && invCtrl.IsActive())) yield return null;
+                yield return null;
+            }
+            string err;
+            try { err = TableFiller.Fill(r); }
+            catch (Exception e) { err = "Error: " + e.Message; Plugin.Log.LogError(e); }
+            if (err == null) { Toast($"{r.Name}: {T._("ingredients on the table, press Craft")}"); _checkCraftCtrlAt = Time.unscaledTime + 0.75f; }
+            else Toast(err);
         }
 
         private static bool InGame()
@@ -164,6 +241,14 @@ namespace GreenHellCraftingHelper
 
             bool hideHud = GameScreenOpen();
             if (_pinned.Count > 0 && !_open && !hideHud) DrawPinnedHud(sw);
+            else if (!_open && !hideHud && _status != null && Time.unscaledTime < _statusUntil)
+            {
+                // messages after the book closed (table filled, crafting rescued...)
+                var size = _hudTitle.CalcSize(new GUIContent(_status));
+                var r = new Rect(sw / 2f - size.x / 2f - 12, 56, size.x + 24, size.y + 8);
+                GUI.Box(r, GUIContent.none, _hud);
+                GUI.Label(new Rect(r.x + 12, r.y + 4, size.x, size.y), _status, _hudTitle);
+            }
             if (!_open && !hideHud && Plugin.Instance.ShowBackpackHint.Value && BackpackOpen())
             {
                 var hint = $"[{Plugin.Instance.ToggleKey.Value}]  {T._("Recipe Book hint")}";
@@ -333,10 +418,9 @@ namespace GreenHellCraftingHelper
                 GUI.enabled = !RecipeData.IsLocked(r) && RecipeData.CanCraftNow(r);
                 if (GUILayout.Button(T._("Put on crafting table"), _btn, GUILayout.Width(200), GUILayout.Height(34)))
                 {
-                    string err = null;
-                    try { err = TableFiller.Fill(r); }
-                    catch (Exception e) { err = "Error: " + e.Message; Plugin.Log.LogError(e); }
-                    if (err == null) { Toast($"{r.Name}: {T._("ingredients on the table, press Craft")}"); Close(); }
+                    // check first so a problem is shown in the open book
+                    string err = TableFiller.Check(r);
+                    if (err == null) StartCoroutine(PutOnTable(r));
                     else Toast(err);
                 }
                 GUI.enabled = true;

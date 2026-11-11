@@ -25,6 +25,10 @@ Crafting Helper dodaje do gry **księgę przepisów**:
 - Esc najpierw czyści wyszukiwanie, potem zamyka księgę. Gdy księga jest otwarta, klawisze nie wywołują akcji gry.
 
 ## Instalacja
+**Najprościej:** pobierz `GreenHellCraftingHelper-<wersja>-with-BepInEx.zip` i rozpakuj do folderu Green Hell
+(obok `GH.exe`). W środku jest BepInEx i mod. Uruchom grę i naciśnij **K**.
+
+**Ręcznie:**
 1. Zainstaluj **BepInEx 5** (x64): pobierz `BepInEx_win_x64_5.4.23.x.zip` z
    [wydań BepInEx](https://github.com/BepInEx/BepInEx/releases) i rozpakuj do folderu Green Hell (obok `GH.exe`).
    Uruchom grę raz i wyjdź.
@@ -40,10 +44,22 @@ Crafting Helper dodaje do gry **księgę przepisów**:
 - `ShowBackpackHint`: mała podpowiedź „[K] Księga przepisów” przy otwartym plecaku.
 
 ## Zgodność
-- Sprawdzone na Green Hell **v2.9.5** (build 114117), Przetrwanie, gra jednoosobowa.
+- Sprawdzone na Green Hell **v2.9.5** (build 114117), Przetrwanie: gra jednoosobowa i kooperacja (host + znajomy).
 - Nie zmienia żadnych plików gry i nie dotyka Twoich zapisów. Przypięte przepisy są zapisywane w pliku konfiguracji.
-- Gra wieloosobowa nie była sprawdzana. Przycisk stołu rzemieślniczego wykonuje te same kroki co akcja „Wytwórz”
-  gry, więc powinien działać u każdego gracza, który ma mod.
+- Kooperacja: działa u hosta i u znajomych, którzy mają mod (każdy gracz ma własną księgę i stół). Gracze bez moda
+  nic nie zauważą.
+
+## Zmiany
+- **1.1.0**
+  - Naprawione: po przełączeniu między klawiaturą a padem **K** przestawało otwierać księgę. Sprawdzanie skrótu w
+    BepInEx nie działa, gdy wciśnięty jest jakikolwiek inny klawisz lub przycisk pada; mod sprawdza teraz tylko K.
+  - Naprawione: „Połóż na stole” z bronią w rękach (np. **łuk** do Fire Bow) przy zamkniętym plecaku mogło zostawić
+    niekończącą się animację wytwarzania, z zablokowanym ruchem, obracaniem i kołem oględzin (C). Mod najpierw
+    otwiera plecak i czeka na grę, jak przy ręcznym wytwarzaniu.
+  - Zabezpieczenie: „Wytwórz” nie startuje bez trybu wytwarzania gry, a jeśli wytwarzanie i tak się zawiesi, mod po
+    1,5 s je anuluje i oddaje składniki.
+  - Komunikaty są widoczne także po zamknięciu księgi.
+- **1.0.0**: pierwsze wydanie.
 
 ## Budowanie ze źródeł
 Wymaga .NET SDK. Ustaw `GamePath`, jeśli Green Hell nie jest w domyślnym folderze Steam:

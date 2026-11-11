@@ -43,6 +43,7 @@ namespace GreenHellCraftingHelper
             ["Recipe locked: find its blueprint first"] = "Рецепт закрыт: сначала найдите чертёж",
             ["Missing"] = "Не хватает",
             ["the basic"] = "базовая",
+            ["Crafting got stuck: ingredients are back in your backpack, try again"] = "Крафт завис: ингредиенты вернулись в рюкзак, попробуйте ещё раз",
         };
 
         public static bool IsRussian

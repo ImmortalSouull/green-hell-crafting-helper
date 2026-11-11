@@ -25,6 +25,10 @@ Crafting Helper adds an in-game **recipe book**:
 - Esc first clears the search, then closes the book. While the book is open, keys don't trigger game actions.
 
 ## Install
+**Easiest:** download `GreenHellCraftingHelper-<version>-with-BepInEx.zip` and extract it into the Green Hell folder
+(next to `GH.exe`). It contains BepInEx and the mod. Start the game and press **K**.
+
+**Manual:**
 1. Install **BepInEx 5** (x64): download `BepInEx_win_x64_5.4.23.x.zip` from
    [BepInEx releases](https://github.com/BepInEx/BepInEx/releases) and unzip it into the Green Hell folder (next to
    `GH.exe`). Start the game once and quit.
@@ -40,10 +44,22 @@ Crafting Helper adds an in-game **recipe book**:
 - `ShowBackpackHint`: the small "[K] Recipe Book" hint shown with the backpack open.
 
 ## Compatibility
-- Tested on Green Hell **v2.9.5** (build 114117), Survival, single player.
+- Tested on Green Hell **v2.9.5** (build 114117), Survival: single player and co-op (host + one friend).
 - It changes no game files and doesn't touch your saves. Pinned recipes are stored in the config file.
-- Multiplayer is untested. The crafting-table button uses the same steps as the game's own "Craft" action, so it
-  should work for every player who has the mod.
+- Co-op: works for the host and for friends who have the mod (each player's book and table are their own).
+  Players without the mod are not affected.
+
+## Changes
+- **1.1.0**
+  - Fixed: after switching between keyboard and gamepad, **K** stopped opening the book. BepInEx's hotkey check
+    ignores a key while any other key or gamepad button counts as held; the mod now checks only K (and its modifiers).
+  - Fixed: "Put on crafting table" with a weapon in your hands (e.g. the **Bow** for a Fire Bow) and the backpack
+    closed could leave the crafting hands looping forever, with moving, turning and the inspection wheel (C) blocked.
+    The mod now opens the backpack first and waits for the game, like crafting by hand.
+  - Safety net: Craft never starts without the game's crafting mode, and if crafting still gets stuck the mod cancels
+    it after 1.5 s and gives the ingredients back.
+  - Messages are shown on screen after the book closes.
+- **1.0.0**: first release.
 
 ## Build from source
 Needs the .NET SDK. Set `GamePath` if Green Hell isn't in the default Steam folder:

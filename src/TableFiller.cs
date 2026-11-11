@@ -9,15 +9,23 @@ namespace GreenHellCraftingHelper
     /// using the same steps as the game's own "Craft" context action (HUDItem.Action.Craft).</summary>
     internal static class TableFiller
     {
-        public static string Fill(Recipe r)
+        /// <summary>Everything that can be checked before touching the game: null = ok.</summary>
+        public static string Check(Recipe r)
         {
             var player = Player.Get();
-            var cm = CraftingManager.Get();
-            var bp = InventoryBackpack.Get();
-            if (player == null || cm == null || bp == null) return T._("Not in game");
+            if (player == null || CraftingManager.Get() == null || InventoryBackpack.Get() == null) return T._("Not in game");
             if (!player.CanStartCrafting()) return T._("You can't craft right now");
             if (CraftingController.Get() != null && CraftingController.Get().m_InProgress) return T._("Already crafting");
             if (RecipeData.IsLocked(r)) return T._("Recipe locked: find its blueprint first");
+            return null;
+        }
+
+        /// <summary>Call with the backpack open (see RecipeBook.PutOnTable).</summary>
+        public static string Fill(Recipe r)
+        {
+            var cm = CraftingManager.Get();
+            var err = Check(r);
+            if (err != null) return err;
 
             // 1) what is already on the table and fits the recipe stays; everything else goes back
             var need = r.Ingredients.ToDictionary(k => k.Key, k => k.Value);
